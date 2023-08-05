@@ -18,6 +18,7 @@
         if (e.target instanceof HTMLInputElement) {
             let image = Array.from(e.target.files);
             files = image;
+            console.log(files);
         }
     }
 </script>
@@ -27,16 +28,29 @@
         <div class="box">
             <div class="rows is-centered">
                 <div class="row has-text-centered">
+                    <div class="columns">
+                        <p class="column">Name</p>
+                        <p class="column">Size</p>
+                        <p class="column">Status</p>
+                    </div>
                     {#if uploadedFiles}
-                        {#each uploadedFiles as { ObjectKey }}
-                            <p>{ObjectKey}</p>
+                        {#each uploadedFiles as { ObjectKey, StatusName }}
+                        <div class="columns">
+                            <p class="column">{ObjectKey}</p>
+                            <p class="column">-</p>
+                            <p class="column">{StatusName}</p>
+                        </div>
                         {/each}
                     {/if}
                     {#if !files}
                         <p>Files isnt uploaded</p>
                     {:else}
-                        {#each files as { name }}
-                            <p>{name}</p>
+                        {#each files as { name, size }}
+                        <div class="columns">
+                            <p class="column">{name}</p>
+                            <p class="column">{(size/1024**2).toFixed(3)} MB</p>
+                            <p class="column">Waiting for send</p>
+                        </div>
                         {/each}
                     {/if}
                 </div>
@@ -68,4 +82,8 @@
 </section>
 
 <style>
+    .column{
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
 </style>
