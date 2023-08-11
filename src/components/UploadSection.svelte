@@ -1,10 +1,17 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { getUploadRequest } from "../lib/server/ApiCLient";
-    import { type UploadRequest } from "../lib/server/ApiCLient";
+    import {
+        getUploadRequest,
+        postInsertRequest,
+        pushMediaFilesToS3,
+        type PostUploadRequestResponse,
+        type PostUploadRequestRequest,
+        type UploadRequestResponse,
+    } from "../lib/server/ApiCLient";
+    import exifr from "exifr";
 
     let files = [];
-    let uploadedFiles: UploadRequest[];
+    let uploadedFiles: UploadRequestResponse[];
 
     onMount(async () => {
         try {
@@ -14,12 +21,54 @@
         }
     });
 
+    async function sendFiles() {
+        let postRequests: Array<PostUploadRequestRequest> = [];
+        let postResponse: PostUploadRequestResponse[];
+
+        for (let i: number = 0; i < files.length; i++) {
+            let exifData = null;
+
+            try {
+                let exifData = await exifr.parse(files[i]);
+            } catch (e) {
+                console.error(e);
+            }
+
+            let takenAtSec = null;
+
+            if (exifData) {
+                takenAtSec = exifData.DateTimeOriginal.valueOf();
+            }
+
+            let postRequest: PostUploadRequestRequest = {
+                ObjectKey: files[i].name,
+                SizeBytes: files[i].size,
+                TakenAtSec: takenAtSec,
+            };
+
+            postRequests.push(postRequest);
+        }
+        try {
+            postResponse = await postInsertRequest(postRequests);
+            const loopTest = [];
+            for (let i = 0; i < files.length; i++) {
+                loopTest.push(
+                    pushMediaFilesToS3(postResponse[i].UploadUrl, files[i])
+                );
+            }
+            await Promise.all(loopTest);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     function onFileSelected(e: Event) {
         if (e.target instanceof HTMLInputElement) {
             let image = Array.from(e.target.files);
             files = image;
             console.log(files);
         }
+        sendFiles();
     }
 </script>
 
@@ -34,23 +83,27 @@
                         <p class="column">Status</p>
                     </div>
                     {#if uploadedFiles}
-                        {#each uploadedFiles as { ObjectKey, StatusName }}
-                        <div class="columns">
-                            <p class="column">{ObjectKey}</p>
-                            <p class="column">-</p>
-                            <p class="column">{StatusName}</p>
-                        </div>
+                        {#each uploadedFiles as { ObjectKey, StatusName, SizeBytes }}
+                            <div class="columns">
+                                <p class="column">{ObjectKey}</p>
+                                <p class="column">
+                                    {(SizeBytes / 1024 ** 2).toFixed(3)} MB
+                                </p>
+                                <p class="column">{StatusName}</p>
+                            </div>
                         {/each}
                     {/if}
                     {#if !files}
                         <p>Files isnt uploaded</p>
                     {:else}
                         {#each files as { name, size }}
-                        <div class="columns">
-                            <p class="column">{name}</p>
-                            <p class="column">{(size/1024**2).toFixed(3)} MB</p>
-                            <p class="column">Waiting for send</p>
-                        </div>
+                            <div class="columns">
+                                <p class="column">{name}</p>
+                                <p class="column">
+                                    {(size / 1024 ** 2).toFixed(3)} MB
+                                </p>
+                                <p class="column">Waiting for send</p>
+                            </div>
                         {/each}
                     {/if}
                 </div>
@@ -74,7 +127,6 @@
                             .ogg,
                             .webm"
                     />
-                    <button class="button is-primary is-outlined">Send</button>
                 </div>
             </div>
         </div>
@@ -82,7 +134,7 @@
 </section>
 
 <style>
-    .column{
+    .column {
         border-left: 1px solid black;
         border-right: 1px solid black;
     }
