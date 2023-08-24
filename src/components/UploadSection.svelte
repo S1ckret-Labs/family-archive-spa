@@ -14,12 +14,20 @@
     let uploadedFiles: UploadRequestResponse[];
 
     onMount(async () => {
+        uploadRequest();
+        setInterval(
+            uploadRequest,
+            import.meta.env.VITE_UPDATE_UPLOAD_REQUEST_TIME
+        );
+    });
+
+    async function uploadRequest() {
         try {
             uploadedFiles = await getUploadRequest();
         } catch (e) {
             console.error(e);
         }
-    });
+    }
 
     async function sendFiles() {
         let postRequests: Array<PostUploadRequestRequest> = [];
