@@ -19,14 +19,14 @@ export type PostUploadRequestResponse = {
 }
 
 export async function getUploadRequest(): Promise<UploadRequestResponse[]> {
-    const response: Response = await fetch('https://gx9mczg2il.execute-api.us-east-1.amazonaws.com/api/v1/users/1/upload/requests')
+    const response: Response = await fetch(import.meta.env.VITE_LINK_GET_UPLOAD_REQUEST)
     const uploadRequest: UploadRequestResponse[] = await response.json();
     return uploadRequest;
 }
 
 export async function postInsertRequest(postRequest): Promise<PostUploadRequestResponse[]> {
 
-    const response: Response = await fetch('https://gx9mczg2il.execute-api.us-east-1.amazonaws.com/api/v1/users/1/upload/requests',
+    const response: Response = await fetch(import.meta.env.VITE_LINK_POST_INSERT_REQUEST,
         {
             method: 'POST',
             body: JSON.stringify(postRequest),
