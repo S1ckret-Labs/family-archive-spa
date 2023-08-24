@@ -7,7 +7,7 @@
         type PostUploadRequestResponse,
         type PostUploadRequestRequest,
         type UploadRequestResponse,
-    } from "../lib/server/ApiCLient";
+    } from "../lib/server/ApiClient";
     import exifr from "exifr";
 
     let files = [];
