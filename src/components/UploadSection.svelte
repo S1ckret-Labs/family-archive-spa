@@ -23,30 +23,33 @@
 
     async function uploadRequest() {
         let uploadedFilesResponse: UploadRequestResponse[];
-        
+
         try {
             uploadedFilesResponse = await getUploadRequest();
         } catch (e) {
             console.error(e);
         }
-        if(!uploadedFiles){
+        if (!uploadedFiles) {
             uploadedFiles = uploadedFilesResponse;
-        }
-        else{
-        for( let i:number = 0; i < uploadedFilesResponse.length; i++){
-            let isNotUploaded:boolean = true;
-            
-            for( let j: number = 0; j < uploadedFiles.length; j++){
-                if(uploadedFilesResponse[i].ObjectKey == uploadedFiles[j].ObjectKey){
-                    uploadedFiles[j].StatusName = uploadedFilesResponse[i].StatusName;
-                    isNotUploaded = false;
+        } else {
+            for (let i: number = 0; i < uploadedFilesResponse.length; i++) {
+                let isNotUploaded: boolean = true;
+
+                for (let j: number = 0; j < uploadedFiles.length; j++) {
+                    if (
+                        uploadedFilesResponse[i].ObjectKey ==
+                        uploadedFiles[j].ObjectKey
+                    ) {
+                        uploadedFiles[j].StatusName =
+                            uploadedFilesResponse[i].StatusName;
+                        isNotUploaded = false;
+                    }
+                }
+
+                if (isNotUploaded) {
+                    uploadedFiles.push(uploadedFilesResponse[i]);
                 }
             }
-
-            if(isNotUploaded){
-                uploadedFiles.push(uploadedFilesResponse[i]);
-            }
-        }
         }
     }
 
@@ -96,7 +99,17 @@
             let image = Array.from(e.target.files);
             files = image;
         }
-        sendFiles();
+        for (let i: number = 0; i < files.length; i++){
+        let pickedFile: UploadRequestResponse = {
+                ObjectId: -1,
+                ObjectKey: files[i].name,
+                StatusName: "Pending upload",
+                SizeBytes: files[i].size,
+                TakenAtSec: null,
+            };
+        uploadedFiles.push(pickedFile);
+        }
+        sendFiles(files);
     }
 </script>
 
