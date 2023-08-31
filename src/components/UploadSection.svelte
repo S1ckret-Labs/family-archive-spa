@@ -22,10 +22,31 @@
     });
 
     async function uploadRequest() {
+        let uploadedFilesResponse: UploadRequestResponse[];
+        
         try {
-            uploadedFiles = await getUploadRequest();
+            uploadedFilesResponse = await getUploadRequest();
         } catch (e) {
             console.error(e);
+        }
+        if(!uploadedFiles){
+            uploadedFiles = uploadedFilesResponse;
+        }
+        else{
+        for( let i:number = 0; i < uploadedFilesResponse.length; i++){
+            let isNotUploaded:boolean = true;
+            
+            for( let j: number = 0; j < uploadedFiles.length; j++){
+                if(uploadedFilesResponse[i].ObjectKey == uploadedFiles[j].ObjectKey){
+                    uploadedFiles[j].StatusName = uploadedFilesResponse[i].StatusName;
+                    isNotUploaded = false;
+                }
+            }
+
+            if(isNotUploaded){
+                uploadedFiles.push(uploadedFilesResponse[i]);
+            }
+        }
         }
     }
 
