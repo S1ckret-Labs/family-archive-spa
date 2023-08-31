@@ -79,13 +79,13 @@
         }
         try {
             postResponse = await postInsertRequest(postRequests);
-            const loopTest = [];
+            const uploadLoop = [];
             for (let i = 0; i < files.length; i++) {
-                loopTest.push(
+                uploadLoop.push(
                     pushMediaFilesToS3(postResponse[i].UploadUrl, files[i])
                 );
             }
-            await Promise.all(loopTest);
+            await Promise.all(uploadLoop);
         } catch (e) {
             console.error(e);
         }
@@ -95,7 +95,6 @@
         if (e.target instanceof HTMLInputElement) {
             let image = Array.from(e.target.files);
             files = image;
-            console.log(files);
         }
         sendFiles();
     }
@@ -119,19 +118,6 @@
                                     {(SizeBytes / 1024 ** 2).toFixed(3)} MB
                                 </p>
                                 <p class="column">{StatusName}</p>
-                            </div>
-                        {/each}
-                    {/if}
-                    {#if !files}
-                        <p>Files isnt uploaded</p>
-                    {:else}
-                        {#each files as { name, size }}
-                            <div class="columns">
-                                <p class="column">{name}</p>
-                                <p class="column">
-                                    {(size / 1024 ** 2).toFixed(3)} MB
-                                </p>
-                                <p class="column">Waiting for send</p>
                             </div>
                         {/each}
                     {/if}
