@@ -42,6 +42,10 @@
                     ) {
                         uploadedFiles[j].StatusName =
                             uploadedFilesResponse[i].StatusName;
+                        uploadedFiles[j].ObjectId =
+                            uploadedFilesResponse[i].ObjectId;
+                        uploadedFiles[j].TakenAtSec =
+                            uploadedFilesResponse[i].TakenAtSec;
                         isNotUploaded = false;
                     }
                 }
@@ -79,6 +83,8 @@
             };
 
             postRequests.push(postRequest);
+
+            
         }
         try {
             postResponse = await postInsertRequest(postRequests);
