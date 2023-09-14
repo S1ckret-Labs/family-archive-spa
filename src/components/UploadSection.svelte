@@ -10,7 +10,7 @@
     } from "../lib/server/ApiClient";
     import exifr from "exifr";
 
-    let files = [];
+   
     let uploadedFiles: UploadRequestResponse[];
 
     onMount(async () => {
@@ -53,7 +53,7 @@
         }
     }
 
-    async function sendFiles() {
+    async function sendFiles(files = []) {
         let postRequests: Array<PostUploadRequestRequest> = [];
         let postResponse: PostUploadRequestResponse[];
 
@@ -95,6 +95,7 @@
     }
 
     function onFileSelected(e: Event) {
+        let files = [];
         if (e.target instanceof HTMLInputElement) {
             let image = Array.from(e.target.files);
             files = image;
